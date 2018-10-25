@@ -26,7 +26,7 @@ public class DataFrame {
             if (Value.class.isAssignableFrom(types[i])) {
                 dataframe.add(new Column(namesOfColumns[i], typesOfColumns[i]));
             }
-            else throw new Exception();
+            else throw new Exception("Invalid class");
         }
     }
 
@@ -86,6 +86,9 @@ public class DataFrame {
                 }
                 if (types[i] == ValString.class){
                     values[i] = ValString.getInstance().create(str[i]);
+                }
+                if (types[i] == ValDateTime.class){
+                    values[i] = ValDateTime.getInstance().create(str[i]);
                 }
             }
             add(values.clone());

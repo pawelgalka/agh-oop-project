@@ -8,10 +8,12 @@ public class Main {
         System.out.println(new ValDouble(0.0).eq(hide));*/
        // System.out.println(Integer.valueOf("0.2"));
        // DataFrame dataFrame = new DataFrame("/home/pawelgalka/IdeaProjects/java/src/dataframe/dane.csv",new Class[]{ValInteger.class,ValDouble.class});
-        SparseDataFrame sparseDataFrame = new SparseDataFrame("/home/pawelgalka/IdeaProjects/java/src/dataframe/sparse.csv",new Class[]{ValDouble.class,ValDouble.class,ValDouble.class}, true,new ValDouble(0.0));
-        sparseDataFrame.print();
-        DataFrame dataFrame2 = sparseDataFrame.toDense();
-        dataFrame2.print();
+
+        DataFrame dataFrame = new DataFrame("/home/pawelgalka/IdeaProjects/java/src/dataframe/groupby.csv",new Class[]{ValString.class,ValDateTime.class,ValDouble.class,ValDouble.class});
+        dataFrame.print();
+        System.out.println(dataFrame.size());
+       /* DataFrame dataFrame2 = sparseDataFrame.toDense();
+        dataFrame2.print();*/
       //  System.out.println(.getClass().isAssignableFrom(Value.class));
         /*ValInteger.class type = dataFrame.dataframe.get(1).getType();
         ValInteger valInteger = Class.forName(type.getName());*/

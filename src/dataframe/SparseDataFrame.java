@@ -75,6 +75,9 @@ public class SparseDataFrame extends DataFrame {
                 if (types[i] == ValString.class){
                     values[i] = ValString.getInstance().create(str[i]);
                 }
+                if (types[i] == ValDateTime.class){
+                    values[i] = ValDateTime.getInstance().create(str[i]);
+                }
             }
             add(values.clone());
         }
