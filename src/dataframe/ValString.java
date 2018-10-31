@@ -4,13 +4,13 @@ import java.util.Objects;
 
 public class ValString extends Value{
     private String value;
-    private static ValString integer = new ValString();
+    /*static ValString integer = new ValString();
 
     public static ValString getInstance(){
         return integer;
-    }
+    }*/
 
-    private ValString(){};
+    ValString(){};
 
     public ValString(final String integer){
         value = integer;
@@ -86,9 +86,22 @@ public class ValString extends Value{
         return false;
     }
 
-    @Override
+    /*@Override
     public boolean equals(Object other) {
-        return value.equals(other);
+        return this.eq((Value)other);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }*/
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ValString valString = (ValString) o;
+        return Objects.equals(value, valString.value);
     }
 
     @Override
@@ -100,5 +113,9 @@ public class ValString extends Value{
     public Value create(String s) {
         value = s;
         return new ValString(value);
+    }
+    @Override
+    public int compareTo(Value o) {
+        return value.compareTo(((ValString)o).getValue());
     }
 }
