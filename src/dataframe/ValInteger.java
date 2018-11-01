@@ -4,19 +4,19 @@ import java.util.Objects;
 
 public class ValInteger extends Value{
     private Integer value;
-    private static ValInteger integer = new ValInteger();
+    /*private static ValInteger integer = new ValInteger();
 
     public static ValInteger getInstance(){
         return integer;
-    }
+    }*/
 
-    private ValInteger(){};
+    ValInteger(){};
 
     public ValInteger(final int integer){
         value = integer;
     }
 
-    public int getValue() {
+    public Integer getValue() {
         return value;
     }
 
@@ -99,9 +99,22 @@ public class ValInteger extends Value{
         return false;
     }
 
-    @Override
+   /* @Override
     public boolean equals(Object other) {
-        return value.equals(other);
+        return this.eq((Value)other);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }*/
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ValInteger that = (ValInteger) o;
+        return Objects.equals(value, that.value);
     }
 
     @Override
@@ -115,4 +128,8 @@ public class ValInteger extends Value{
         return new ValInteger(value);
     }
 
+    @Override
+    public int compareTo(Value o) {
+        return value.compareTo(((ValInteger)o).getValue());
+    }
 }

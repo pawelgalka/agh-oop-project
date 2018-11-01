@@ -56,11 +56,16 @@ public class SparseDataFrame extends DataFrame {
         String strLine;
 
         Value[] values = new Value[dataframe.size()];
+        Value.ValueBuilder[] builders = new Value.ValueBuilder[dataframe.size()];
+        for (int i = 0; i < builders.length; i++) {
+            builders[i] = Value.builder(types[i]);
+           // System.out.println(builders[i]);
+        }
         while ((strLine = br.readLine()) != null) {
             String[] str = strLine.split(",");
 
             for (int i = 0; i < str.length; i++) {
-                if (types[i] == ValInteger.class){
+               /*if (types[i] == ValInteger.class){
                     values[i] = ValInteger.getInstance().create(str[i]);
                 }
                 if (types[i] == ValDouble.class){
@@ -77,7 +82,9 @@ public class SparseDataFrame extends DataFrame {
                 }
                 if (types[i] == ValDateTime.class){
                     values[i] = ValDateTime.getInstance().create(str[i]);
-                }
+                }*/
+                values[i] = builders[i].build(str[i]);
+
             }
             add(values.clone());
         }

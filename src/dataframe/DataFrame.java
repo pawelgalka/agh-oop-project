@@ -3,10 +3,9 @@ package dataframe;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 public class DataFrame {
 
@@ -14,10 +13,9 @@ public class DataFrame {
     String[] columns;
     Class<? extends Value>[] types;
 
-
-    public DataFrame(String[] namesOfColumns, Class<? extends Value>[] typesOfColumns) throws Exception{
+    public DataFrame(String[] namesOfColumns, Class<? extends Value>[] typesOfColumns){
         if (namesOfColumns.length!=typesOfColumns.length){
-            throw new IllegalArgumentException();
+            System.exit(1);
         }
         columns = namesOfColumns;
         types = typesOfColumns;
@@ -26,13 +24,14 @@ public class DataFrame {
             if (Value.class.isAssignableFrom(types[i])) {
                 dataframe.add(new Column(namesOfColumns[i], typesOfColumns[i]));
             }
-            else throw new Exception("Invalid class");
+            else System.exit(2);
         }
     }
 
     public DataFrame(Column[] kolumny){
         dataframe = new ArrayList<>();
         columns=new String[kolumny.length];
+        types = new Class[kolumny.length];
         for (int i=0; i<kolumny.length; ++i) {
             columns[i]=kolumny[i].getName();
             types[i]=kolumny[i].getType();
@@ -69,27 +68,16 @@ public class DataFrame {
 
         String strLine;
         Value[] values = new Value[dataframe.size()];
+        Value.ValueBuilder[] builders = new Value.ValueBuilder[dataframe.size()];
+        for (int i = 0; i < builders.length; i++) {
+            builders[i] = Value.builder(types[i]);
+        }
+
+
         while ((strLine = br.readLine()) != null) {
             String[] str = strLine.split(",");
             for (int i = 0; i < str.length; i++) {
-                if (types[i] == ValInteger.class){
-                    values[i] = ValInteger.getInstance().create(str[i]);
-                }
-                if (types[i] == ValDouble.class){
-                    values[i] = ValDouble.getInstance().create(str[i]);
-                }
-                if (types[i] == ValBoolean.class){
-                    values[i] = ValBoolean.getInstance().create(str[i]);
-                }
-                if (types[i] == ValFloat.class){
-                    values[i] = ValFloat.getInstance().create(str[i]);
-                }
-                if (types[i] == ValString.class){
-                    values[i] = ValString.getInstance().create(str[i]);
-                }
-                if (types[i] == ValDateTime.class){
-                    values[i] = ValDateTime.getInstance().create(str[i]);
-                }
+               values[i] = builders[i].build(str[i]);
             }
             add(values.clone());
         }
@@ -145,7 +133,6 @@ public class DataFrame {
     public DataFrame get(String [] cols, boolean copy){
         Column[] tab = new Column[cols.length];
         for (int i=0; i<tab.length; ++i){
-            //System.out.println(this.get(cols[i]).getName());
             if (!copy){ //shallow copy
                 tab[i] = this.get(cols[i]);
             }
@@ -153,6 +140,7 @@ public class DataFrame {
                 tab[i] = new Column(get(cols[i]));
             }
         }
+        //for (Column column:tab) System.out.println(column.getName()+column.getType());
         DataFrame dataFrame = new DataFrame(tab);
         return dataFrame;
 
@@ -185,4 +173,254 @@ public class DataFrame {
         return nowydf;
     }
 
+    GroupByDataFrame groupby(String[] colnames) throws Exception{
+        if (colnames.length>columns.length) throw new Exception();
+        LinkedList<DataFrame> dataFrameLinkedList = new LinkedList<>();
+        dataFrameLinkedList.add(this);
+        //int[] indexes = new int[colnames.length];
+        ArrayList<Integer> indexes = new ArrayList<>();
+        int index =0;
+        for (String str: colnames){
+            boolean found = false;
+            for (int i=0; i<columns.length; ++i){
+                if (Objects.equals(str,columns[i])) {indexes.add(index++,i); found = true;}
+            }
+            if (!found) throw new Exception("Invalid column name");
+        }
+        for (int j:indexes){
+            LinkedList<DataFrame>result = new LinkedList<>();
+            for (DataFrame dataFrame: dataFrameLinkedList){
+                Set<Value> UniqueValues = new HashSet<>(dataFrame.dataframe.get(j).getArrayList());
+                List<Value> values = new ArrayList<>(UniqueValues);
+                Collections.sort(values);
+                //for (Value value:listOfUniqueValues) System.out.println(value);
+                for (Value value:values){
+                    DataFrame current = getDataFrameOfCertainValue(dataFrame,value,j);
+                    if (current.size()!=0) result.add(current);
+                }
+
+                dataFrameLinkedList = new LinkedList<>(result);
+            }
+        }
+        //for (int i:indexes) System.out.println(i);
+        return new GroupByDataFrame(dataFrameLinkedList,columns,types,indexes);
+
+    }
+
+
+    private DataFrame getDataFrameOfCertainValue(DataFrame df, Value v, int indexOfColumn) throws Exception{
+        DataFrame dataFrame= new DataFrame(columns,types);
+        int indexOfRow=0;
+        for (Value value:df.dataframe.get(indexOfColumn).getArrayList()){
+            if (value.equals(v)){
+                dataFrame.add(df.getRecord(indexOfRow));
+            }
+            indexOfRow++;
+        }
+        return dataFrame;
+    }
+
+    class GroupByDataFrame implements GroupBy{
+        LinkedList<DataFrame> groupDataFrameList;
+        String[] columns;
+        Class<? extends Value>[] types;
+        ArrayList<Integer> groupedCols;
+        ArrayList<String> groupedColsNames = new ArrayList<>();
+        GroupByDataFrame(LinkedList<DataFrame> linkedList, String[] colnames, Class<? extends Value>[] coltypes, ArrayList<Integer> groupedCols){
+            this.groupDataFrameList=linkedList;
+            this.columns = colnames;
+            this.types = coltypes;
+            this.groupedCols = groupedCols;
+            for (int i:groupedCols) groupedColsNames.add(columns[i]);
+        }
+
+        @Override
+        public DataFrame max(){
+            DataFrame output = new DataFrame(columns,types);
+
+            for (DataFrame dataFrame: groupDataFrameList){
+                int index=0;
+                int currentCol =0;
+
+                Value[] currentRow = new Value[columns.length];
+                for (Column column:dataFrame.dataframe){
+                    if (groupedCols.contains(currentCol++)){
+                        currentRow[index++] = column.getArrayList().get(0);
+                    }
+                    else{
+                        currentRow[index++] = Collections.max(column.getArrayList());
+                    }
+                }
+                output.add(currentRow.clone());
+
+            }
+            return output;
+        }
+
+        @Override
+        public DataFrame min(){
+            DataFrame output = new DataFrame(columns,types);
+            for (DataFrame dataFrame: groupDataFrameList){
+                int currentCol =0;
+                int index=0;
+                Value[] currentRow = new Value[columns.length];
+                for (Column column:dataFrame.dataframe){
+                    if (groupedCols.contains(currentCol++)){
+                        currentRow[index++] = column.getArrayList().get(0);
+                    }
+                    else{
+                        currentRow[index++] = Collections.min(column.getArrayList());
+                    }
+                }
+                output.add(currentRow.clone());
+            }
+            return output;
+        }
+
+        @Override
+        public DataFrame mean(){
+            DataFrame output = CreateDataFrameOfSpecifiedIndexes();
+
+            Value.ValueBuilder[] builders = new Value.ValueBuilder[output.dataframe.size()];
+            for (int i = 0; i < builders.length; i++) builders[i] = Value.builder(output.types[i]);
+            for (DataFrame dataFrame: groupDataFrameList){
+                int index=0;
+                int currentCol =0;
+
+                Value[] currentRow = new Value[output.dataframe.size()];
+
+                for (Column column:dataFrame.dataframe){
+                    if (groupedCols.contains(currentCol++)) currentRow[index++] = column.getArrayList().get(0);
+                    else if (column.getType()==ValString.class || column.getType() == ValDateTime.class)
+                        continue;
+                    else {
+                        Value sum = column.getArrayList().get(0);
+                        for (int i=1 ; i<column.size(); ++i){
+                            sum = sum.add(column.getArrayList().get(i));
+                        }
+                        Value mean = sum.div(new ValInteger(column.size()));
+                        currentRow[index++] = mean;
+                    }
+                }
+                output.add(currentRow.clone());
+            }
+
+            return output;
+        }
+
+        @Override
+        public DataFrame sum(){
+            DataFrame output = CreateDataFrameOfSpecifiedIndexes();
+
+            Value.ValueBuilder[] builders = new Value.ValueBuilder[output.dataframe.size()];
+            for (int i = 0; i < builders.length; i++) builders[i] = Value.builder(output.types[i]);
+
+            for (DataFrame dataFrame: groupDataFrameList){
+                int index=0;
+                int currentCol =0;
+
+                Value[] currentRow = new Value[output.dataframe.size()];
+                for (Column column:dataFrame.dataframe){
+                    if (groupedCols.contains(currentCol++)) currentRow[index++] = column.getArrayList().get(0);
+                    else if(column.getType()==ValString.class || column.getType() == ValDateTime.class) continue;
+                    else {
+                        Value sum = column.getArrayList().get(0);
+                        for (int i=1 ; i<column.size(); ++i){
+                            sum = sum.add(column.getArrayList().get(i));
+                        }
+                        currentRow[index++] = sum;
+                    }
+                }
+                output.add(currentRow.clone());
+            }
+            return output;
+        }
+
+        @Override
+        public DataFrame std(){
+            DataFrame output = CreateDataFrameOfSpecifiedIndexes();
+            DataFrame mean = mean();
+
+            Value.ValueBuilder[] builders = new Value.ValueBuilder[output.dataframe.size()];
+            for (int i = 0; i < builders.length; i++) builders[i] = Value.builder(output.types[i]);
+
+            int currentDf=0;
+            ValInteger exp = new ValInteger(2);
+            for (DataFrame dataFrame: groupDataFrameList){
+                int index=0;
+                int currentCol =0;
+                Value[] currentRow = new Value[output.dataframe.size()];
+                for (Column column:dataFrame.dataframe){
+                    if (groupedCols.contains(currentCol)) currentRow[index++] = column.getArrayList().get(0);
+                    else if(column.getType()==ValString.class || column.getType() == ValDateTime.class) continue;
+                    else {
+                        Value currentmean = mean.getRecord(currentDf)[index];
+                        Value sum = (column.getArrayList().get(0).sub(currentmean)).pow(exp);
+                        for (int i=1 ; i<column.size(); ++i){
+                            sum = sum.add((column.getArrayList().get(i).sub(currentmean)).pow(exp));
+                        }
+
+                        currentRow[index] = builders[index++].build(Double.toString(Math.sqrt((double)sum.div(new ValInteger(column.size()-1)).getValue())));
+                    }
+                    currentCol++;
+                }
+                output.add(currentRow.clone());
+                currentDf++;
+            }
+            return output;
+        }
+
+
+        @Override
+        public DataFrame var(){
+            DataFrame output = CreateDataFrameOfSpecifiedIndexes();
+            DataFrame std = std();
+
+            Value.ValueBuilder[] builders = new Value.ValueBuilder[output.dataframe.size()];
+            for (int i = 0; i < builders.length; i++) builders[i] = Value.builder(output.types[i]);
+
+            ValInteger exp = new ValInteger(2);
+            int currentDf=0;
+            for (DataFrame dataFrame: groupDataFrameList){
+                int index=0;
+                int currentCol =0;
+                Value[] currentRow = new Value[output.dataframe.size()];
+                for (Column column:dataFrame.dataframe){
+                    if (groupedCols.contains(currentCol)) currentRow[index++] = column.getArrayList().get(0);
+                    else if(column.getType()==ValString.class || column.getType() == ValDateTime.class) continue;
+                    else {
+                        Value currentstd = std.getRecord(currentDf)[index];
+                        currentRow[index++] = currentstd.pow(exp);
+                    }
+                    currentCol++;
+                }
+                output.add(currentRow.clone());
+                currentDf++;
+            }
+            return output;
+        }
+
+        @Override
+        public DataFrame apply(Applyable a) {
+            //TODO: apply
+            return null;
+        }
+
+        private DataFrame CreateDataFrameOfSpecifiedIndexes(){
+            ArrayList<Integer> validIndexesOfColumns = new ArrayList<>(groupedCols); //valid columns
+            int currentIndexOfCol = 0;
+            for (Class<? extends Value> type:types){
+                if (type != ValString.class && type != ValDateTime.class) validIndexesOfColumns.add(currentIndexOfCol);
+                currentIndexOfCol++;
+            }
+            String[] cols = new String[validIndexesOfColumns.size()];
+            Class<? extends Value>[] typs = new Class[validIndexesOfColumns.size()];
+            for (int i=0; i<validIndexesOfColumns.size(); i++){
+                cols[i] = columns[validIndexesOfColumns.get(i)];
+                typs[i] = types[validIndexesOfColumns.get(i)];
+            }
+            return new DataFrame(cols,typs);
+
+        }
+    }
 }

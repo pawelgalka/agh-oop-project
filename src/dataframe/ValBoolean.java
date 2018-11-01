@@ -4,19 +4,19 @@ import java.util.Objects;
 
 public class ValBoolean extends Value{
     private Boolean value;
-    private static ValBoolean integer = new ValBoolean();
+   /* private static ValBoolean integer = new ValBoolean();
 
     public static ValBoolean getInstance(){
         return integer;
     }
-
-    private ValBoolean(){};
+*/
+    ValBoolean(){};
 
     public ValBoolean(final boolean integer){
         value = integer;
     }
 
-    public boolean getValue() {
+    public Boolean getValue() {
         return value;
     }
 
@@ -77,9 +77,22 @@ public class ValBoolean extends Value{
     }
 
 
-    @Override
+   /* @Override
     public boolean equals(Object other) {
-        return value.equals(other);
+        return this.eq((Value)other);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }*/
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ValBoolean that = (ValBoolean) o;
+        return Objects.equals(value, that.value);
     }
 
     @Override
@@ -91,5 +104,9 @@ public class ValBoolean extends Value{
     public Value create(String s) {
         value = java.lang.Boolean.parseBoolean(s);
         return new ValBoolean(value);
+    }
+    @Override
+    public int compareTo(Value o) {
+        return value.compareTo(((ValBoolean)o).getValue());
     }
 }

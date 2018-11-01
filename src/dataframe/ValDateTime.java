@@ -8,14 +8,14 @@ import java.util.Objects;
 
 public class ValDateTime extends Value {
     private Date value;
-    private DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
-    private static ValDateTime integer = new ValDateTime();
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    /*private static ValDateTime integer = new ValDateTime();
 
     public static ValDateTime getInstance(){
         return integer;
-    }
+    }*/
 
-    private ValDateTime(){};
+    ValDateTime(){};
 
     public ValDateTime(final Date integer){
         value = integer;
@@ -82,14 +82,28 @@ public class ValDateTime extends Value {
     }
 
 
-    @Override
+    /*@Override
     public boolean equals(Object other) {
-        return value.equals(other);
+        return this.eq((Value)other);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(value);
+    }*/
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ValDateTime that = (ValDateTime) o;
+        return Objects.equals(value, that.value) &&
+                Objects.equals(dateFormat, that.dateFormat);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value, dateFormat);
     }
 
     @Override
@@ -99,5 +113,9 @@ public class ValDateTime extends Value {
         }
         catch (ParseException e){}
         return new ValDateTime(value);
+    }
+    @Override
+    public int compareTo(Value o) {
+        return value.compareTo(((ValDateTime)o).getValue());
     }
 }

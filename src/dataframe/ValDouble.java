@@ -1,22 +1,23 @@
 package dataframe;
 
+import javax.xml.validation.Validator;
 import java.util.Objects;
 
 public class ValDouble extends Value{
     private Double value;
-    private static ValDouble integer = new ValDouble();
+    /*private static ValDouble integer = new ValDouble();
 
     public static ValDouble getInstance(){
         return integer;
-    }
+    }*/
 
-    private ValDouble(){};
+    ValDouble(){};
 
     public ValDouble(final double integer){
         value = integer;
     }
 
-    public double getValue() {
+    public Double getValue() {
         return value;
     }
 
@@ -56,13 +57,23 @@ public class ValDouble extends Value{
         if (value instanceof ValDouble){
             return new ValDouble(this.value/((ValDouble) value).getValue());
         }
+        else if (value instanceof ValInteger){
+            return new ValDouble(this.value/((ValInteger) value).getValue());
+        }
+        else if (value instanceof ValFloat){
+            return new ValDouble(this.value/((ValFloat) value).getValue());
+        }
         return this;
     }
 
     @Override
     public Value pow(Value value) {
         if (value instanceof ValDouble){
-            return new ValDouble((int)Math.pow((double)this.value,(double)((ValDouble) value).getValue()));
+            return new ValDouble(Math.pow((double)this.value,(double)((ValDouble) value).getValue()));
+        }
+        else if (value instanceof ValInteger){
+            return new ValDouble(Math.pow((double)this.value,(double)((ValInteger) value).getValue()));
+
         }
         return this;
     }
@@ -99,9 +110,22 @@ public class ValDouble extends Value{
         return false;
     }
 
-    @Override
+    /*@Override
     public boolean equals(Object other) {
-        return value.equals(other);
+        return this.eq((Value)other);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }*/
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ValDouble valDouble = (ValDouble) o;
+        return Objects.equals(value, valDouble.value);
     }
 
     @Override
@@ -113,6 +137,10 @@ public class ValDouble extends Value{
     public Value create(String s) {
         value = java.lang.Double.parseDouble(s);
         return new ValDouble(value);
+    }
+    @Override
+    public int compareTo(Value o) {
+        return value.compareTo(((ValDouble)o).getValue());
     }
 
 }

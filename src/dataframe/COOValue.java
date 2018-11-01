@@ -99,4 +99,9 @@ public class COOValue extends Value{
     public Value create(String s) {
         return new COOValue(this.value.create(s),getIndex());
     }
+
+    @Override
+    public int compareTo(Value o) {
+        return value.compareTo(o);
+    }
 }

@@ -4,19 +4,19 @@ import java.util.Objects;
 
 public class ValFloat extends Value{
     private Float value;
-    private static ValFloat integer = new ValFloat();
+    /*private static ValFloat integer = new ValFloat();
 
     public static ValFloat getInstance(){
         return integer;
-    }
+    }*/
 
-    private ValFloat(){};
+    ValFloat(){};
 
     public ValFloat(final float integer){
         value = integer;
     }
 
-    public float getValue() {
+    public Float getValue() {
         return value;
     }
 
@@ -99,9 +99,22 @@ public class ValFloat extends Value{
         return false;
     }
 
-    @Override
+   /* @Override
     public boolean equals(Object other) {
-        return value.equals(other);
+        return this.eq((Value)other);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }*/
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ValFloat valFloat = (ValFloat) o;
+        return Objects.equals(value, valFloat.value);
     }
 
     @Override
@@ -113,5 +126,9 @@ public class ValFloat extends Value{
     public Value create(String s) {
         value = java.lang.Float.parseFloat(s);
         return new ValFloat(value);
+    }
+    @Override
+    public int compareTo(Value o) {
+        return value.compareTo(((ValFloat)o).getValue());
     }
 }

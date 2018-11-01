@@ -26,7 +26,7 @@ public class Column {
         else {
             try {
                 System.out.println(element.toString());
-                Thread.sleep(1000);
+                Thread.sleep(0);
             }
             catch (InterruptedException e){
 
