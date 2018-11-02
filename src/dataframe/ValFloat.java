@@ -31,6 +31,13 @@ public class ValFloat extends Value{
         if (value instanceof ValFloat){
             return new ValFloat(this.value + ((ValFloat) value).getValue());
         }
+        else if (value instanceof  ValDouble){
+            return new ValFloat((float) (this.value + ((ValDouble) value).getValue()));
+        }
+        else if (value instanceof  ValInteger){
+            return new ValFloat((float)(this.value + ((ValInteger) value).getValue()));
+        }
+        else System.out.println("Tried invalid operation +");
         return this;
     }
 
@@ -39,6 +46,13 @@ public class ValFloat extends Value{
         if (value instanceof ValFloat){
             return new ValFloat(this.value-((ValFloat) value).getValue());
         }
+        else if (value instanceof  ValDouble){
+            return new ValFloat((float) (this.value - ((ValDouble) value).getValue()));
+        }
+        else if (value instanceof  ValInteger){
+            return new ValFloat((float)(this.value - ((ValInteger) value).getValue()));
+        }
+        else System.out.println("Tried invalid operation -");
         return this;
 
     }
@@ -48,6 +62,13 @@ public class ValFloat extends Value{
         if (value instanceof ValFloat){
             return new ValFloat(this.value*((ValFloat) value).getValue());
         }
+        else if (value instanceof  ValDouble){
+            return new ValFloat((float) (this.value * ((ValDouble) value).getValue()));
+        }
+        else if (value instanceof  ValInteger){
+            return new ValFloat((float)(this.value * ((ValInteger) value).getValue()));
+        }
+        else System.out.println("Tried invalid operation *");
         return this;
     }
 
@@ -56,6 +77,13 @@ public class ValFloat extends Value{
         if (value instanceof ValFloat){
             return new ValFloat(this.value/((ValFloat) value).getValue());
         }
+        else if (value instanceof  ValDouble){
+            return new ValFloat((float) (this.value / ((ValDouble) value).getValue()));
+        }
+        else if (value instanceof  ValInteger){
+            return new ValFloat((float)(this.value / ((ValInteger) value).getValue()));
+        }
+        else System.out.println("Tried invalid operation /");
         return this;
     }
 
@@ -64,6 +92,13 @@ public class ValFloat extends Value{
         if (value instanceof ValFloat){
             return new ValFloat((int)Math.pow((double)this.value,(double)((ValFloat) value).getValue()));
         }
+        else if (value instanceof  ValDouble){
+            return new ValFloat((float)Math.pow((double)this.value,(double)((ValDouble) value).getValue()));
+        }
+        else if (value instanceof  ValInteger){
+            return new ValFloat((float)Math.pow((double)this.value,(double)((ValInteger) value).getValue()));
+        }
+        else System.out.println("Tried invalid operation ^");
         return this;
     }
 

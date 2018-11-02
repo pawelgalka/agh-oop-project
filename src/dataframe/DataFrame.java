@@ -2,6 +2,7 @@ package dataframe;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -41,48 +42,52 @@ public class DataFrame {
         }
     }
 
-    public DataFrame(String filename, Class<? extends Value>[] typesOfColumns) throws Exception{
+    public DataFrame(String filename, Class<? extends Value>[] typesOfColumns){
         this(filename,typesOfColumns,true);
     }
 
-    public DataFrame(String filename, Class<? extends Value>[] typesOfColumns, boolean header) throws Exception {
-        FileInputStream fstream = new FileInputStream(filename);
-        BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+    public DataFrame(String filename, Class<? extends Value>[] typesOfColumns, boolean header) {
+        try{
+            FileInputStream fstream = new FileInputStream(filename);
+            BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
 
-        dataframe = new ArrayList<>();
-        columns = new String[typesOfColumns.length];
-        types = typesOfColumns;
-        if (header) {
-            columns = br.readLine().split(",");
-        } else {
-            System.out.println("Enter names of columns");
-            Scanner scanner = new Scanner(System.in);
-            for (int i = 0; i < columns.length; ++i) {
-                columns[i] = scanner.next();
+            dataframe = new ArrayList<>();
+            columns = new String[typesOfColumns.length];
+            types = typesOfColumns;
+            if (header) {
+                columns = br.readLine().split(",");
+            } else {
+                System.out.println("Enter names of columns");
+                Scanner scanner = new Scanner(System.in);
+                for (int i = 0; i < columns.length; ++i) {
+                    columns[i] = scanner.next();
+                }
             }
-        }
 
-        for (int i = 0; i < typesOfColumns.length; ++i) {
-            dataframe.add(new Column(columns[i], types[i]));
-        }
-
-        String strLine;
-        Value[] values = new Value[dataframe.size()];
-        Value.ValueBuilder[] builders = new Value.ValueBuilder[dataframe.size()];
-        for (int i = 0; i < builders.length; i++) {
-            builders[i] = Value.builder(types[i]);
-        }
-
-
-        while ((strLine = br.readLine()) != null) {
-            String[] str = strLine.split(",");
-            for (int i = 0; i < str.length; i++) {
-               values[i] = builders[i].build(str[i]);
+            for (int i = 0; i < typesOfColumns.length; ++i) {
+                dataframe.add(new Column(columns[i], types[i]));
             }
-            add(values.clone());
-        }
 
-        br.close();
+            String strLine;
+            Value[] values = new Value[dataframe.size()];
+            Value.ValueBuilder[] builders = new Value.ValueBuilder[dataframe.size()];
+            for (int i = 0; i < builders.length; i++) {
+                builders[i] = Value.builder(types[i]);
+            }
+
+
+            while ((strLine = br.readLine()) != null) {
+                String[] str = strLine.split(",");
+                for (int i = 0; i < str.length; i++) {
+                    values[i] = builders[i].build(str[i]);
+                }
+                add(values.clone());
+            }
+
+            br.close();
+        } catch (IOException e){e.printStackTrace();}
+
+
     }
 
     public void add(Value[] values){
@@ -173,7 +178,13 @@ public class DataFrame {
         return nowydf;
     }
 
-    GroupByDataFrame groupby(String[] colnames) throws Exception{
+    /**
+     *
+     * @param colnames - cilumns that we group by
+     * @return GroupbyDataFrame linekd list of grouped dataframes
+     * @throws Exception //TODO: rethink exceptions
+     */
+    public GroupByDataFrame groupby(String[] colnames) throws Exception{
         if (colnames.length>columns.length) throw new Exception();
         LinkedList<DataFrame> dataFrameLinkedList = new LinkedList<>();
         dataFrameLinkedList.add(this);
@@ -220,12 +231,14 @@ public class DataFrame {
         return dataFrame;
     }
 
-    class GroupByDataFrame implements GroupBy{
+    public class GroupByDataFrame implements GroupBy{
         LinkedList<DataFrame> groupDataFrameList;
         String[] columns;
         Class<? extends Value>[] types;
         ArrayList<Integer> groupedCols;
         ArrayList<String> groupedColsNames = new ArrayList<>();
+
+
         GroupByDataFrame(LinkedList<DataFrame> linkedList, String[] colnames, Class<? extends Value>[] coltypes, ArrayList<Integer> groupedCols){
             this.groupDataFrameList=linkedList;
             this.columns = colnames;
@@ -402,10 +415,19 @@ public class DataFrame {
 
         @Override
         public DataFrame apply(Applyable a) {
-            //TODO: apply
-            return null;
+            DataFrame output = new DataFrame(columns,types);
+            for (DataFrame dataFrame: groupDataFrameList){
+                DataFrame current = a.apply(dataFrame);
+                for (int i=0; i<current.size(); ++i)
+                    output.add(current.getRecord(i));
+            }
+            return output;
         }
 
+        /**
+         *
+         * @return dataframe of columns that were being grouped and columns that are not string and datetime
+         */
         private DataFrame CreateDataFrameOfSpecifiedIndexes(){
             ArrayList<Integer> validIndexesOfColumns = new ArrayList<>(groupedCols); //valid columns
             int currentIndexOfCol = 0;

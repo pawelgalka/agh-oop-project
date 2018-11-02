@@ -27,12 +27,7 @@ public class ValString extends Value{
 
 
     @Override
-    public Value add(Value value) {
-        if (value instanceof ValString){
-            return new ValString(this.value + ((ValString) value).getValue());
-        }
-        return this;
-    }
+    public Value add(Value value) { return this; }
 
     @Override
     public Value sub(Value value) {
@@ -85,16 +80,6 @@ public class ValString extends Value{
         }
         return false;
     }
-
-    /*@Override
-    public boolean equals(Object other) {
-        return this.eq((Value)other);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(value);
-    }*/
 
     @Override
     public boolean equals(Object o) {

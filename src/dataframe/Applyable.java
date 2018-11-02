@@ -1,5 +1,5 @@
 package dataframe;
 
-public interface Applyable {
+interface Applyable {
     DataFrame apply(DataFrame dataFrame);
 }

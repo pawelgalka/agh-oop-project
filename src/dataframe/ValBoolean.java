@@ -76,17 +76,6 @@ public class ValBoolean extends Value{
         return false;
     }
 
-
-   /* @Override
-    public boolean equals(Object other) {
-        return this.eq((Value)other);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(value);
-    }*/
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

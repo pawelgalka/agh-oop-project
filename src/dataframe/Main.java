@@ -10,80 +10,22 @@ import java.util.LinkedList;
 
 public class Main {
     public static void main(String[] args) throws Exception{
+        DataFrame dataFrame = new DataFrame("/home/pawelgalka/IdeaProjects/java/src/dataframe/dane.csv",new Class[]{ValString.class,ValDouble.class,ValDouble.class});
+        DataFrame gr = dataFrame.groupby(new String[]{"id"}).apply(new Mediana());
+        gr.print();
+
         /*Class[] arg = new Class[2];
         arg[0]=ValInteger.class;
 */      /*ValDouble hide = new ValDouble(0.0);
         System.out.println(new ValDouble(0.0).eq(hide));*/
        // System.out.println(Integer.valueOf("0.2"));
         //System.out.println(Math.pow((-0.4524634484707701-0.000313),2));
-        long time = System.currentTimeMillis();
-        DataFrame dataFrame = new DataFrame("/home/pawelgalka/IdeaProjects/java/src/dataframe/groubymulti.csv",new Class[]{ValString.class,ValDateTime.class,ValDouble.class,ValDouble.class});
+       /* long time = System.currentTimeMillis();
 //        DataFrame dataFrame = new DataFrame("/home/pawelgalka/IdeaProjects/java/src/dataframe/data.csv",new Class[]{ValDouble.class,ValDouble.class,ValDouble.class});
         System.out.println(System.currentTimeMillis()-time);
 //        System.out.println(dataFrame.size());
-        //DataFrame groupby = dataFrame.groupby(new String[]{"id"}).max();
-        //DataFrame groupby1 = dataFrame.groupby(new String[]{"id"}).min();
-       /* DataFrame groupby2 = dataFrame.groupby(new String[]{"id"}).mean();
 
 
-        DataFrame groupby3 = dataFrame.groupby(new String[]{"id"}).sum();
-
-        DataFrame groupby4 = dataFrame.groupby(new String[]{"id"}).std();
-
-        DataFrame groupby5 = dataFrame.groupby(new String[]{"id"}).var();
-
-        //System.out.println(linkedList.size());
-        System.out.println("-----max-----");
-        /*for (DataFrame df:groupby.groupDataFrameList){
-            df.print();
-        }*/
-       //dataFrame.print();
-//        groupby.print();
-//        System.out.println("-----min-----");
-
-//        groupby1.print();
-/*        System.out.println("-----mean-----");
-
-        groupby2.print();
-       System.out.println("-----sum-----");
-
-        groupby3.print();
-        System.out.println("------std----");
-        groupby4.print();
-
-        System.out.println("------var----");
-        groupby5.print();*/
-        DataFrame groupbymax = dataFrame.groupby(new String[]{"id","date"}).max();
-        groupbymax.print();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        DataFrame groupbymin = dataFrame.groupby(new String[]{"id","date"}).min();
-        groupbymin.print();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        DataFrame groupbysum = dataFrame.groupby(new String[]{"id","date"}).sum();
-        groupbysum.print();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        DataFrame groupbymean = dataFrame.groupby(new String[]{"id","date"}).mean();
-        groupbymean.print();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        DataFrame groupbystd = dataFrame.groupby(new String[]{"id","date"}).std();
-        groupbystd.print();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        DataFrame groupbyvar = dataFrame.groupby(new String[]{"id","date"}).var();
-        groupbyvar.print();
-
-
-        System.out.println();
         /*DataFrame.GroupByDataFrame df = dataFrame.groupby(new String[]{"id","date"});
         df.groupDataFrameList.get(0).print();*/
      /*ArrayList<Value> values = new ArrayList<>();

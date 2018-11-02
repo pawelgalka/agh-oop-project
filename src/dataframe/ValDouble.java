@@ -32,6 +32,13 @@ public class ValDouble extends Value{
         if (value instanceof ValDouble){
             return new ValDouble(this.value + ((ValDouble) value).getValue());
         }
+        else if (value instanceof ValInteger){
+            return new ValDouble(this.value+((ValInteger) value).getValue());
+        }
+        else if (value instanceof ValFloat){
+            return new ValDouble(this.value+((ValFloat) value).getValue());
+        }
+        else System.out.println("Tried invalid operation +");
         return this;
     }
 
@@ -40,6 +47,13 @@ public class ValDouble extends Value{
         if (value instanceof ValDouble){
             return new ValDouble(this.value-((ValDouble) value).getValue());
         }
+        else if (value instanceof ValInteger){
+            return new ValDouble(this.value-((ValInteger) value).getValue());
+        }
+        else if (value instanceof ValFloat){
+            return new ValDouble(this.value-((ValFloat) value).getValue());
+        }
+        else System.out.println("Tried invalid operation -");
         return this;
 
     }
@@ -49,6 +63,13 @@ public class ValDouble extends Value{
         if (value instanceof ValDouble){
             return new ValDouble(this.value*((ValDouble) value).getValue());
         }
+        else if (value instanceof ValInteger){
+            return new ValDouble(this.value*((ValInteger) value).getValue());
+        }
+        else if (value instanceof ValFloat){
+            return new ValDouble(this.value*((ValFloat) value).getValue());
+        }
+        else System.out.println("Tried invalid operation *");
         return this;
     }
 
@@ -63,6 +84,8 @@ public class ValDouble extends Value{
         else if (value instanceof ValFloat){
             return new ValDouble(this.value/((ValFloat) value).getValue());
         }
+        else System.out.println("Tried invalid operation /");
+
         return this;
     }
 
@@ -71,10 +94,13 @@ public class ValDouble extends Value{
         if (value instanceof ValDouble){
             return new ValDouble(Math.pow((double)this.value,(double)((ValDouble) value).getValue()));
         }
-        else if (value instanceof ValInteger){
+        else if (value instanceof  ValInteger){
             return new ValDouble(Math.pow((double)this.value,(double)((ValInteger) value).getValue()));
-
         }
+        else if (value instanceof  ValFloat){
+            return new ValDouble(Math.pow((double)this.value,(double)((ValFloat) value).getValue()));
+        }
+        else System.out.println("Tried invalid operation ^");
         return this;
     }
 
@@ -110,15 +136,6 @@ public class ValDouble extends Value{
         return false;
     }
 
-    /*@Override
-    public boolean equals(Object other) {
-        return this.eq((Value)other);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(value);
-    }*/
 
     @Override
     public boolean equals(Object o) {

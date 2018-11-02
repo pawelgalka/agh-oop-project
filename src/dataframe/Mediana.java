@@ -1,6 +1,24 @@
 package dataframe;
 
-/*public class Mediana implements Applyable {
+import java.util.*;
+
+public class Mediana implements Applyable {
     @Override
-   // public DataFrame apply(DataFrame group);
-}*/
+    public DataFrame apply(DataFrame dataFrame) {
+        //sort each columns on the go and return middle value
+        DataFrame output = new DataFrame(dataFrame.columns,dataFrame.types);
+        Value[] values = new Value[output.dataframe.size()];
+        int index = 0;
+        for (Column column: dataFrame.dataframe){
+            List<Value> valuesOfColumn = new ArrayList<>(column.getArrayList());
+            Collections.sort(valuesOfColumn);
+            int size = valuesOfColumn.size();
+            if (size%2!=0)
+                values[index++] = valuesOfColumn.get((size-1)/2);
+            else{
+                values[index++] = (valuesOfColumn.get((size-2)/2).add(valuesOfColumn.get((size)/2))).mul(new ValDouble(0.5));}
+        }
+        output.add(values);
+        return output;
+    }
+}
