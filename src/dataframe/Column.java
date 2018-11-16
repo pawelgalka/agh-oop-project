@@ -24,14 +24,7 @@ public class Column {
             arrayList.add(element);
         }
         else {
-            try {
-                System.out.println(element.toString());
-                Thread.sleep(0);
-            }
-            catch (InterruptedException e){
-
-            }
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Invalid type");
         }
     }
 
@@ -44,6 +37,70 @@ public class Column {
         }
         return hide;
     }
+
+    void add(Value value) throws CustomException{
+        for (int i=0; i<arrayList.size(); ++i){
+            try {
+                arrayList.set(i, arrayList.get(i).add(value));
+            } catch (CustomException e){
+                throw new InvalidTypeOperation(e.getMessage(),i,getName());
+            }
+        }
+    }
+
+    void mul(Value value) throws CustomException{
+        for (int i=0; i<arrayList.size(); ++i){
+            try {
+                arrayList.set(i, arrayList.get(i).mul(value));
+            } catch (CustomException e){
+                throw new InvalidTypeOperation(e.getMessage(),i,getName());
+            }
+        }
+    }
+
+    void div(Value value) throws CustomException{
+        for (int i=0; i<arrayList.size(); ++i){
+            try {
+                arrayList.set(i, arrayList.get(i).div(value));
+            } catch (CustomException e){
+                throw new InvalidTypeOperation(e.getMessage(),i,getName());
+            }
+        }
+    }
+
+    void add(Column column) throws InvalidColumnSizeException,CustomException{
+        if (column.size()!=size()) throw new InvalidColumnSizeException(getName());
+        for (int i=0; i<size(); ++i){
+            try {
+                arrayList.set(i,arrayList.get(i).add(column.getArrayList().get(i)));
+            } catch (CustomException e){
+                throw new InvalidTypeOperation(e.getMessage(),i,getName());
+            }
+        }
+    }
+
+    void mul(Column column) throws InvalidColumnSizeException,CustomException{
+        if (column.size()!=size()) throw new InvalidColumnSizeException(getName());
+        for (int i=0; i<size(); ++i){
+            try {
+                arrayList.set(i,arrayList.get(i).mul(column.getArrayList().get(i)));
+            } catch (CustomException e){
+                throw new InvalidTypeOperation(e.getMessage(),i,getName());
+            }
+        }
+    }
+
+    void div(Column column) throws InvalidColumnSizeException,CustomException{
+        if (column.size()!=size()) throw new InvalidColumnSizeException(getName());
+        for (int i=0; i<size(); ++i){
+            try {
+                arrayList.set(i,arrayList.get(i).div(column.getArrayList().get(i)));
+            } catch (CustomException e){
+                throw new InvalidTypeOperation(e.getMessage(),i,getName());
+            }
+        }
+    }
+
 
     int size(){
         return arrayList.size();

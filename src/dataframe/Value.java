@@ -5,11 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 
 public abstract class Value implements Cloneable,Comparable<Value>{
     public abstract String toString();
-    public abstract Value add(Value value);
-    public abstract Value sub(Value value);
-    public abstract Value mul(Value value);
-    public abstract Value div(Value value);
-    public abstract Value pow(Value value);
+    public abstract Value add(Value value) throws CustomException;
+    public abstract Value sub(Value value) throws CustomException;
+    public abstract Value mul(Value value) throws CustomException;
+    public abstract Value div(Value value) throws CustomException;
+    public abstract Value pow(Value value) throws CustomException;
     public abstract boolean eq(Value value);
     public abstract boolean lte(Value value);
     public abstract boolean gte(Value value);

@@ -11,8 +11,8 @@ import java.util.LinkedList;
 public class Main {
     public static void main(String[] args) throws Exception{
         DataFrame dataFrame = new DataFrame("/home/pawelgalka/IdeaProjects/java/src/dataframe/dane.csv",new Class[]{ValString.class,ValDouble.class,ValDouble.class});
-        DataFrame gr = dataFrame.groupby(new String[]{"id"}).apply(new Mediana());
-        gr.print();
+       /* DataFrame gr = dataFrame.groupby(new String[]{"id"}).apply(new Mediana());
+        gr.print();*/
 
         /*Class[] arg = new Class[2];
         arg[0]=ValInteger.class;

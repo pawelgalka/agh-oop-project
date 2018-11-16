@@ -3,10 +3,10 @@ package dataframe;
 public interface GroupBy {
     DataFrame max();
     DataFrame min();
-    DataFrame mean();
-    DataFrame std();
-    DataFrame sum();
-    DataFrame var();
-    DataFrame apply(Applyable a);
+    DataFrame mean() throws CustomException;
+    DataFrame std() throws CustomException;
+    DataFrame sum() throws CustomException;
+    DataFrame var() throws CustomException;
+    DataFrame apply(Applyable a) throws CustomException;
 
 }

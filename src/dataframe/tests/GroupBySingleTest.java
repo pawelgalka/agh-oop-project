@@ -2,10 +2,16 @@ package dataframe.tests;
 
 import dataframe.*;
 
+import java.util.HashMap;
+import java.util.List;
+
 public class GroupBySingleTest {
     public static void main(String[] args) throws Exception {
         DataFrame dataFrame = new DataFrame("/home/pawelgalka/IdeaProjects/java/src/dataframe/groupby.csv",new Class[]{ValString.class,ValDateTime.class,ValDouble.class,ValDouble.class});
-
+        /*HashMap<List<Value>,DataFrame> map = dataFrame.groupby("id");
+        for (var obj:map.values()){
+            obj.print();
+        }*/
         DataFrame groupby = dataFrame.groupby(new String[]{"id"}).max();
         DataFrame groupby1 = dataFrame.groupby(new String[]{"id"}).min();
         DataFrame groupby2 = dataFrame.groupby(new String[]{"id"}).mean();

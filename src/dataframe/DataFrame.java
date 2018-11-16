@@ -1,12 +1,11 @@
 package dataframe;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.security.InvalidParameterException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DataFrame {
 
@@ -16,16 +15,19 @@ public class DataFrame {
 
     public DataFrame(String[] namesOfColumns, Class<? extends Value>[] typesOfColumns){
         if (namesOfColumns.length!=typesOfColumns.length){
-            System.exit(1);
+            throw new InvalidParameterException("Invalid length");
         }
         columns = namesOfColumns;
         types = typesOfColumns;
         dataframe = new ArrayList<>();
         for (int i=0; i<namesOfColumns.length; ++i){
-            if (Value.class.isAssignableFrom(types[i])) {
-                dataframe.add(new Column(namesOfColumns[i], typesOfColumns[i]));
+            try{
+                if (Value.class.isAssignableFrom(types[i])) {
+                    dataframe.add(new Column(namesOfColumns[i], typesOfColumns[i]));
+                }
+                else throw new InvalidClassException("Class unassignable from Value class");
             }
-            else System.exit(2);
+            catch (InvalidClassException e){e.printStackTrace();};
         }
     }
 
@@ -38,7 +40,7 @@ public class DataFrame {
             types[i]=kolumny[i].getType();
             dataframe.add(kolumny[i]);
             if (dataframe.get(i).getArrayList().size()!=dataframe.get(0).getArrayList().size())
-                throw new RuntimeException("Invalid length of column");
+                throw new InvalidParameterException("Invalid length of column");
         }
     }
 
@@ -85,6 +87,7 @@ public class DataFrame {
             }
 
             br.close();
+            fstream.close();
         } catch (IOException e){e.printStackTrace();}
 
 
@@ -118,12 +121,13 @@ public class DataFrame {
     }
 
     public Column get(String colname){
-        for (Column col:dataframe){
+        /*for (Column col:dataframe){
             if (Objects.equals(col.getName(),colname)){
                 return col;
             }
         }
-        throw new RuntimeException("Column not found!");
+        throw new RuntimeException("Column not found!");*/
+        return dataframe.stream().filter(c -> c.getName().equals(colname)).findFirst().orElse(null);
     }
 
     public Value[] getRecord(int index){
@@ -178,18 +182,146 @@ public class DataFrame {
         return nowydf;
     }
 
-    /**
+    /*public DataFrame multiplyByValue(Value factor, String colid) throws Exception{
+        boolean found = false;
+        int colIndex = 0;
+        for (int i=0; i<columns.length; ++i){
+            if (Objects.equals(colid,columns[i])) {found = true; colIndex = i;}
+        }
+        if (!found) throw new Exception("Invalid column name");
+
+        for (int i=0; i<dataframe.get(colIndex).getArrayList().size(); ++i){
+            Value tmp = dataframe.get(colIndex).getArrayList().get(i).mul(factor);
+            dataframe.get(colIndex).getArrayList().remove(i);
+            dataframe.get(colIndex).getArrayList().add(i,tmp);
+        }
+//        System.out.println(dataframe.get(colIndex).getArrayList().get(0));
+        return this;
+    }*/
+
+    public GroupByDataFrame groupby(String... colnames) throws Exception{
+        HashMap<List<Value>, DataFrame> map = new HashMap<>(colnames.length);
+        List<Column> columns1 = Arrays.stream(colnames).map(this::get).collect(Collectors.toList());
+        ArrayList<Integer> indexes = GetIndexesOfColumns(colnames);
+
+        //for(var col:columns1) System.out.println(col.getName());
+        for (int i = 0; i < size(); i++) {
+            List<Value> values = new ArrayList<>(columns1.size());
+
+            for (var column: columns1) {
+                values.add(column.getArrayList().get(i));
+            }
+
+            if(!map.containsKey(values)) {
+                map.put(values, iloc(i));
+            } else {
+                map.get(values).add(getRecord(i));
+            }
+        }
+        return new GroupByDataFrame(new LinkedList<DataFrame>(map.values()),this.columns,types,indexes);
+    }
+
+
+    public void add(Value value, String ... columns) throws CustomException{
+        ArrayList<Integer> indexes= GetIndexesOfColumns(columns);
+        for (int index:indexes){
+            try {
+                dataframe.get(index).add(value);
+            }
+            catch (CustomException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void mul(Value value, String ... columns) throws CustomException{
+        ArrayList<Integer> indexes= GetIndexesOfColumns(columns);
+        for (int index:indexes){
+            try {
+                dataframe.get(index).mul(value);
+            }
+            catch (CustomException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void div(Value value, String ... columns) throws CustomException{
+        ArrayList<Integer> indexes= GetIndexesOfColumns(columns);
+        for (int index:indexes){
+            try {
+                dataframe.get(index).div(value);
+            }
+            catch (CustomException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void addColumn(Column column, String... whereToAdd){
+        try {
+            ArrayList<Integer> indexes= GetIndexesOfColumns(whereToAdd);
+            for (var v:indexes) System.out.println(v);
+            for (int index:indexes){
+
+                dataframe.get(index).add(column);
+            }
+        } catch (InvalidColumnSizeException|CustomException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void mulColumn(Column column, String... whereToAdd){
+        try {
+            ArrayList<Integer> indexes= GetIndexesOfColumns(whereToAdd);
+            for (int index:indexes){
+                dataframe.get(index).mul(column);
+            }
+        } catch (InvalidColumnSizeException|CustomException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void divColumn(Column column, String... whereToAdd){
+        try {
+            ArrayList<Integer> indexes= GetIndexesOfColumns(whereToAdd);
+            for (int index:indexes){
+                dataframe.get(index).div(column);
+            }
+        } catch (InvalidColumnSizeException|CustomException e) {
+            e.printStackTrace();
+        }
+    }
+    private ArrayList<Integer> GetIndexesOfColumns(String... colnames) throws CustomException {
+       // for (var v:columns) System.out.println(v);
+        ArrayList<Integer> indexes = new ArrayList<>();
+        int index=0;
+        for (String str: colnames){
+            boolean found = false;
+            for (int i=0; i<columns.length; ++i){
+//               System.out.println(str+colnames[i]);
+                if (Objects.equals(str,columns[i])) {indexes.add(index++,i); found = true;}
+            }
+            if (!found) throw new CustomException("Invalid column name");
+        }
+//        for(int i:indexes) System.out.println(i);;
+
+        return indexes;
+    }
+    /*/**
      *
      * @param colnames - cilumns that we group by
      * @return GroupbyDataFrame linekd list of grouped dataframes
      * @throws Exception //TODO: rethink exceptions
      */
-    public GroupByDataFrame groupby(String[] colnames) throws Exception{
+    /*public GroupByDataFrame groupby(String[] colnames) throws Exception{
         if (colnames.length>columns.length) throw new Exception();
         LinkedList<DataFrame> dataFrameLinkedList = new LinkedList<>();
         dataFrameLinkedList.add(this);
         //int[] indexes = new int[colnames.length];
         ArrayList<Integer> indexes = new ArrayList<>();
+
+        //for(var col:columns1) System.out.println(col.getName());
         int index =0;
         for (String str: colnames){
             boolean found = false;
@@ -216,7 +348,7 @@ public class DataFrame {
         //for (int i:indexes) System.out.println(i);
         return new GroupByDataFrame(dataFrameLinkedList,columns,types,indexes);
 
-    }
+    }*/
 
 
     private DataFrame getDataFrameOfCertainValue(DataFrame df, Value v, int indexOfColumn) throws Exception{
@@ -291,7 +423,7 @@ public class DataFrame {
         }
 
         @Override
-        public DataFrame mean(){
+        public DataFrame mean() throws CustomException{
             DataFrame output = CreateDataFrameOfSpecifiedIndexes();
 
             Value.ValueBuilder[] builders = new Value.ValueBuilder[output.dataframe.size()];
@@ -322,7 +454,7 @@ public class DataFrame {
         }
 
         @Override
-        public DataFrame sum(){
+        public DataFrame sum() throws CustomException{
             DataFrame output = CreateDataFrameOfSpecifiedIndexes();
 
             Value.ValueBuilder[] builders = new Value.ValueBuilder[output.dataframe.size()];
@@ -350,7 +482,7 @@ public class DataFrame {
         }
 
         @Override
-        public DataFrame std(){
+        public DataFrame std() throws CustomException{
             DataFrame output = CreateDataFrameOfSpecifiedIndexes();
             DataFrame mean = mean();
 
@@ -367,13 +499,15 @@ public class DataFrame {
                     if (groupedCols.contains(currentCol)) currentRow[index++] = column.getArrayList().get(0);
                     else if(column.getType()==ValString.class || column.getType() == ValDateTime.class) continue;
                     else {
-                        Value currentmean = mean.getRecord(currentDf)[index];
-                        Value sum = (column.getArrayList().get(0).sub(currentmean)).pow(exp);
-                        for (int i=1 ; i<column.size(); ++i){
-                            sum = sum.add((column.getArrayList().get(i).sub(currentmean)).pow(exp));
-                        }
+//                        try {
+                            Value currentmean = mean.getRecord(currentDf)[index];
+                            Value sum = (column.getArrayList().get(0).sub(currentmean)).pow(exp);
+                            for (int i = 1; i < column.size(); ++i) {
+                                sum = sum.add((column.getArrayList().get(i).sub(currentmean)).pow(exp));
+                            }
 
-                        currentRow[index] = builders[index++].build(Double.toString(Math.sqrt((double)sum.div(new ValInteger(column.size()-1)).getValue())));
+                            currentRow[index] = builders[index++].build(Double.toString(Math.sqrt((double) sum.div(new ValInteger(column.size() - 1)).getValue())));
+//                        } catch (CustomException custom){custom.printStackTrace();
                     }
                     currentCol++;
                 }
@@ -385,7 +519,7 @@ public class DataFrame {
 
 
         @Override
-        public DataFrame var(){
+        public DataFrame var() throws CustomException{
             DataFrame output = CreateDataFrameOfSpecifiedIndexes();
             DataFrame std = std();
 
@@ -414,7 +548,7 @@ public class DataFrame {
         }
 
         @Override
-        public DataFrame apply(Applyable a) {
+        public DataFrame apply(Applyable a) throws CustomException {
             DataFrame output = new DataFrame(columns,types);
             for (DataFrame dataFrame: groupDataFrameList){
                 DataFrame current = a.apply(dataFrame);

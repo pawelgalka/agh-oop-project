@@ -7,7 +7,7 @@ public class GroupByMultiTest {
     public static void main(String[] args) throws Exception{
         DataFrame dataFrame = new DataFrame("/home/pawelgalka/IdeaProjects/java/src/dataframe/groubymulti.csv",new Class[]{ValString.class,ValDateTime.class,ValDouble.class,ValDouble.class});
 
-        DataFrame groupbymax = dataFrame.groupby(new String[]{"id","date"}).max();
+        DataFrame groupbymax = dataFrame.groupby(new String[]{"date"}).max();
         groupbymax.print();
         System.out.println();
         System.out.println();

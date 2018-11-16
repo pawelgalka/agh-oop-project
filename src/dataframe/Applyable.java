@@ -1,5 +1,5 @@
 package dataframe;
 
 interface Applyable {
-    DataFrame apply(DataFrame dataFrame);
+    DataFrame apply(DataFrame dataFrame) throws CustomException;
 }

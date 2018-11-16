@@ -28,7 +28,7 @@ public class ValDouble extends Value{
 
 
     @Override
-    public Value add(Value value) {
+    public Value add(Value value) throws CustomException{
         if (value instanceof ValDouble){
             return new ValDouble(this.value + ((ValDouble) value).getValue());
         }
@@ -38,12 +38,11 @@ public class ValDouble extends Value{
         else if (value instanceof ValFloat){
             return new ValDouble(this.value+((ValFloat) value).getValue());
         }
-        else System.out.println("Tried invalid operation +");
-        return this;
+        else throw new CustomException("Tried invalid operation +");
     }
 
     @Override
-    public Value sub(Value value) {
+    public Value sub(Value value) throws CustomException{
         if (value instanceof ValDouble){
             return new ValDouble(this.value-((ValDouble) value).getValue());
         }
@@ -53,13 +52,12 @@ public class ValDouble extends Value{
         else if (value instanceof ValFloat){
             return new ValDouble(this.value-((ValFloat) value).getValue());
         }
-        else System.out.println("Tried invalid operation -");
-        return this;
+        else throw new CustomException("Tried invalid operation -");
 
     }
 
     @Override
-    public Value mul(Value value) {
+    public Value mul(Value value) throws CustomException{
         if (value instanceof ValDouble){
             return new ValDouble(this.value*((ValDouble) value).getValue());
         }
@@ -69,12 +67,12 @@ public class ValDouble extends Value{
         else if (value instanceof ValFloat){
             return new ValDouble(this.value*((ValFloat) value).getValue());
         }
-        else System.out.println("Tried invalid operation *");
-        return this;
+        else throw new CustomException("Tried invalid operation *");
+
     }
 
     @Override
-    public Value div(Value value) {
+    public Value div(Value value) throws CustomException{
         if (value instanceof ValDouble){
             return new ValDouble(this.value/((ValDouble) value).getValue());
         }
@@ -84,13 +82,13 @@ public class ValDouble extends Value{
         else if (value instanceof ValFloat){
             return new ValDouble(this.value/((ValFloat) value).getValue());
         }
-        else System.out.println("Tried invalid operation /");
+        else throw new CustomException("Tried invalid operation /");
 
-        return this;
+
     }
 
     @Override
-    public Value pow(Value value) {
+    public Value pow(Value value) throws CustomException{
         if (value instanceof ValDouble){
             return new ValDouble(Math.pow((double)this.value,(double)((ValDouble) value).getValue()));
         }
@@ -100,8 +98,8 @@ public class ValDouble extends Value{
         else if (value instanceof  ValFloat){
             return new ValDouble(Math.pow((double)this.value,(double)((ValFloat) value).getValue()));
         }
-        else System.out.println("Tried invalid operation ^");
-        return this;
+        else throw new CustomException("Tried invalid operation ^");
+
     }
 
     @Override

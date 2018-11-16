@@ -41,27 +41,27 @@ public class COOValue extends Value{
     }
 
     @Override
-    public Value add(Value value) {
+    public Value add(Value value) throws CustomException {
         return this.value.add(value);
     }
 
     @Override
-    public Value sub(Value value) {
+    public Value sub(Value value)throws CustomException {
         return this.value.sub(value);
     }
 
     @Override
-    public Value mul(Value value) {
+    public Value mul(Value value)throws CustomException {
         return this.value.mul(value);
     }
 
     @Override
-    public Value div(Value value) {
+    public Value div(Value value)throws CustomException {
         return this.value.div(value);
     }
 
     @Override
-    public Value pow(Value value) {
+    public Value pow(Value value)throws CustomException {
         return this.value.pow(value);
     }
 
