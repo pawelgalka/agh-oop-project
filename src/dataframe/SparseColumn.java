@@ -1,5 +1,8 @@
 package dataframe;
 
+import dataframe.value.COOValue;
+import dataframe.value.Value;
+
 import java.util.ArrayList;
 
 public class SparseColumn extends Column {

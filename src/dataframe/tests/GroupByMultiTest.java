@@ -2,10 +2,13 @@ package dataframe.tests;
 
 
 import dataframe.*;
+import dataframe.value.ValDateTime;
+import dataframe.value.ValDouble;
+import dataframe.value.ValString;
 
 public class GroupByMultiTest {
     public static void main(String[] args) throws Exception{
-        DataFrame dataFrame = new DataFrame("/home/pawelgalka/IdeaProjects/java/src/dataframe/groubymulti.csv",new Class[]{ValString.class,ValDateTime.class,ValDouble.class,ValDouble.class});
+        DataFrame dataFrame = new DataFrame("/home/pawelgalka/IdeaProjects/java/src/dataframe/groubymulti.csv",new Class[]{ValString.class, ValDateTime.class, ValDouble.class,ValDouble.class});
 
         DataFrame groupbymax = dataFrame.groupby(new String[]{"date"}).max();
         groupbymax.print();

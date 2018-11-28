@@ -1,17 +1,34 @@
 package dataframe;
 
+import dataframe.exceptions.CustomException;
+import dataframe.exceptions.InvalidColumnSizeException;
+//import dataframe.groupby.Applyable;
+import dataframe.groupby.Applyable;
+import dataframe.groupby.GroupBy;
+import dataframe.value.*;
+
 import java.io.*;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class DataFrame {
 
-    ArrayList<Column> dataframe;
-    String[] columns;
-    Class<? extends Value>[] types;
+    public ArrayList<Column> dataframe;
+    public String[] columns;
+    public Class<? extends Value>[] types;
+
+    public ArrayList<Column> getDataframe() {
+        return dataframe;
+    }
+
+    public String[] getColumns() {
+        return columns;
+    }
+
+    public Class<? extends Value>[] getTypes() {
+        return types;
+    }
 
     public DataFrame(String[] namesOfColumns, Class<? extends Value>[] typesOfColumns){
         if (namesOfColumns.length!=typesOfColumns.length){
@@ -43,7 +60,64 @@ public class DataFrame {
                 throw new InvalidParameterException("Invalid length of column");
         }
     }
+    public DataFrame(String filename, Class<? extends Value>[] typesOfColumns, String[] colnames) {
+        try {
+            FileInputStream fstream = new FileInputStream(filename);
+            BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
 
+            dataframe = new ArrayList<>();
+            columns = new String[typesOfColumns.length];
+            types = typesOfColumns;
+            for (int i = 0; i < columns.length; ++i) {
+                columns[i] = colnames[i];
+            }
+            if (columns.length != types.length)
+                throw new InvalidParameterException("Passed invalid data: columns number of file differ from passed column types");
+            for (int i = 0; i < typesOfColumns.length; ++i) {
+                dataframe.add(new Column(columns[i], types[i]));
+            }
+
+            String strLine;
+            Value[] values = new Value[dataframe.size()];
+            Value.ValueBuilder[] builders = new Value.ValueBuilder[dataframe.size()];
+            for (int i = 0; i < builders.length; i++) {
+                builders[i] = Value.builder(types[i]);
+            }
+
+            br.readLine();
+            while ((strLine = br.readLine()) != null) {
+                String[] str = strLine.split(",");
+                for (int i = 0; i < str.length; i++) {
+                    if (types[i] == ValInteger.class){
+                        values[i] = ValInteger.getInstance().create(str[i]);
+                    }
+                    if (types[i] == ValDouble.class){
+                        values[i] = ValDouble.getInstance().create(str[i]);
+                    }
+                    if (types[i] == ValBoolean.class){
+                        values[i] = ValBoolean.getInstance().create(str[i]);
+                    }
+                    if (types[i] == ValFloat.class){
+                        values[i] = ValFloat.getInstance().create(str[i]);
+                    }
+                    if (types[i] == ValString.class){
+                        values[i] = ValString.getInstance().create(str[i]);
+                    }
+                    if (types[i] == ValDateTime.class){
+                        values[i] = ValDateTime.getInstance().create(str[i]);
+                    }
+                }
+                add(values.clone());
+            }
+
+            br.close();
+            fstream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
     public DataFrame(String filename, Class<? extends Value>[] typesOfColumns){
         this(filename,typesOfColumns,true);
     }
@@ -65,7 +139,7 @@ public class DataFrame {
                     columns[i] = scanner.next();
                 }
             }
-
+            if (columns.length!=types.length) throw new InvalidParameterException("Passed invalid data: columns number of file differ from passed column types");
             for (int i = 0; i < typesOfColumns.length; ++i) {
                 dataframe.add(new Column(columns[i], types[i]));
             }
@@ -208,7 +282,7 @@ public class DataFrame {
         for (int i = 0; i < size(); i++) {
             List<Value> values = new ArrayList<>(columns1.size());
 
-            for (var column: columns1) {
+            for (Column column: columns1) {
                 values.add(column.getArrayList().get(i));
             }
 
@@ -222,7 +296,7 @@ public class DataFrame {
     }
 
 
-    public void add(Value value, String ... columns) throws CustomException{
+    public void add(Value value, String ... columns) throws CustomException {
         ArrayList<Integer> indexes= GetIndexesOfColumns(columns);
         for (int index:indexes){
             try {
@@ -261,12 +335,12 @@ public class DataFrame {
     public void addColumn(Column column, String... whereToAdd){
         try {
             ArrayList<Integer> indexes= GetIndexesOfColumns(whereToAdd);
-            for (var v:indexes) System.out.println(v);
+            for (Integer v:indexes) System.out.println(v);
             for (int index:indexes){
 
                 dataframe.get(index).add(column);
             }
-        } catch (InvalidColumnSizeException|CustomException e) {
+        } catch (InvalidColumnSizeException |CustomException e) {
             e.printStackTrace();
         }
     }
@@ -363,13 +437,32 @@ public class DataFrame {
         return dataFrame;
     }
 
-    public class GroupByDataFrame implements GroupBy{
+    public class GroupByDataFrame implements GroupBy {
         LinkedList<DataFrame> groupDataFrameList;
         String[] columns;
         Class<? extends Value>[] types;
         ArrayList<Integer> groupedCols;
         ArrayList<String> groupedColsNames = new ArrayList<>();
 
+        public LinkedList<DataFrame> getGroupDataFrameList() {
+            return groupDataFrameList;
+        }
+
+        public String[] getColumns() {
+            return columns;
+        }
+
+        public Class<? extends Value>[] getTypes() {
+            return types;
+        }
+
+        public ArrayList<Integer> getGroupedCols() {
+            return groupedCols;
+        }
+
+        public ArrayList<String> getGroupedColsNames() {
+            return groupedColsNames;
+        }
 
         GroupByDataFrame(LinkedList<DataFrame> linkedList, String[] colnames, Class<? extends Value>[] coltypes, ArrayList<Integer> groupedCols){
             this.groupDataFrameList=linkedList;
@@ -485,7 +578,8 @@ public class DataFrame {
         public DataFrame std() throws CustomException{
             DataFrame output = CreateDataFrameOfSpecifiedIndexes();
             DataFrame mean = mean();
-
+//            mean.print();
+//            output.print();
             Value.ValueBuilder[] builders = new Value.ValueBuilder[output.dataframe.size()];
             for (int i = 0; i < builders.length; i++) builders[i] = Value.builder(output.types[i]);
 
@@ -494,13 +588,20 @@ public class DataFrame {
             for (DataFrame dataFrame: groupDataFrameList){
                 int index=0;
                 int currentCol =0;
+//                System.out.println(groupedCols.get(0));
                 Value[] currentRow = new Value[output.dataframe.size()];
                 for (Column column:dataFrame.dataframe){
-                    if (groupedCols.contains(currentCol)) currentRow[index++] = column.getArrayList().get(0);
-                    else if(column.getType()==ValString.class || column.getType() == ValDateTime.class) continue;
+                    if (groupedCols.contains(currentCol)) {currentRow[index++] = column.getArrayList().get(0);}
+                    else if(column.getType()==ValString.class || column.getType() == ValDateTime.class) {currentCol++;continue;
+                        }
                     else {
 //                        try {
                             Value currentmean = mean.getRecord(currentDf)[index];
+//                            System.out.println(currentDf+" "+currentmean+"--------");
+                            /*if (currentmean.getClass()==ValDateTime.class || currentmean.getClass()==ValString.class || currentmean.getClass()==ValBoolean.class){
+                                currentRow[index++]=null;
+                                continue;
+                            }*/
                             Value sum = (column.getArrayList().get(0).sub(currentmean)).pow(exp);
                             for (int i = 1; i < column.size(); ++i) {
                                 sum = sum.add((column.getArrayList().get(i).sub(currentmean)).pow(exp));
@@ -534,13 +635,14 @@ public class DataFrame {
                 Value[] currentRow = new Value[output.dataframe.size()];
                 for (Column column:dataFrame.dataframe){
                     if (groupedCols.contains(currentCol)) currentRow[index++] = column.getArrayList().get(0);
-                    else if(column.getType()==ValString.class || column.getType() == ValDateTime.class) continue;
+                    else if(column.getType()==ValString.class || column.getType() == ValDateTime.class) {currentCol++;continue;}
                     else {
                         Value currentstd = std.getRecord(currentDf)[index];
                         currentRow[index++] = currentstd.pow(exp);
                     }
                     currentCol++;
                 }
+//                for (Value v:currentRow) System.out.println(v);
                 output.add(currentRow.clone());
                 currentDf++;
             }
@@ -558,6 +660,9 @@ public class DataFrame {
             return output;
         }
 
+ /*       public DataFrame operation(enum oper){
+
+        }*/
         /**
          *
          * @return dataframe of columns that were being grouped and columns that are not string and datetime

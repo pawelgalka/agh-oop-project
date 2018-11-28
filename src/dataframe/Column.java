@@ -1,5 +1,11 @@
 package dataframe;
 
+import dataframe.exceptions.CustomException;
+import dataframe.exceptions.InvalidColumnSizeException;
+import dataframe.exceptions.InvalidTypeOperation;
+import dataframe.value.COOValue;
+import dataframe.value.Value;
+
 import java.util.ArrayList;
 
 public class Column {
@@ -38,7 +44,7 @@ public class Column {
         return hide;
     }
 
-    void add(Value value) throws CustomException{
+    void add(Value value) throws CustomException {
         for (int i=0; i<arrayList.size(); ++i){
             try {
                 arrayList.set(i, arrayList.get(i).add(value));

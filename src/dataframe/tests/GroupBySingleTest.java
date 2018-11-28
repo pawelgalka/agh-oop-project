@@ -1,36 +1,40 @@
 package dataframe.tests;
 
 import dataframe.*;
-
-import java.util.HashMap;
-import java.util.List;
+import dataframe.value.ValDateTime;
+import dataframe.value.ValDouble;
+import dataframe.value.ValString;
 
 public class GroupBySingleTest {
     public static void main(String[] args) throws Exception {
-        DataFrame dataFrame = new DataFrame("/home/pawelgalka/IdeaProjects/java/src/dataframe/groupby.csv",new Class[]{ValString.class,ValDateTime.class,ValDouble.class,ValDouble.class});
+        DataFrame dataFrame = new DataFrame("/home/pawelgalka/IdeaProjects/java/src/dataframe/dane.csv",new Class[]{ValString.class, ValDateTime.class, ValDouble.class,ValDouble.class});
         /*HashMap<List<Value>,DataFrame> map = dataFrame.groupby("id");
         for (var obj:map.values()){
             obj.print();
         }*/
-        DataFrame groupby = dataFrame.groupby(new String[]{"id"}).max();
+        /*DataFrame groupby = dataFrame.groupby(new String[]{"date"}).max();
         DataFrame groupby1 = dataFrame.groupby(new String[]{"id"}).min();
         DataFrame groupby2 = dataFrame.groupby(new String[]{"id"}).mean();
-        DataFrame groupby3 = dataFrame.groupby(new String[]{"id"}).sum();
-        DataFrame groupby4 = dataFrame.groupby(new String[]{"id"}).std();
-        DataFrame groupby5 = dataFrame.groupby(new String[]{"id"}).var();
+        DataFrame groupby3 = dataFrame.groupby(new String[]{"id"}).sum();*/
+        DataFrame.GroupByDataFrame groupby4 = dataFrame.groupby(new String[]{"date"});
+        DataFrame groupby5 = dataFrame.groupby(new String[]{"date"}).var();
 
-        System.out.println("-----max-----");
+    /*    System.out.println("-----max-----");
         groupby.print();
         System.out.println("-----min-----");
         groupby1.print();
         System.out.println("-----mean-----");
         groupby2.print();
         System.out.println("-----sum-----");
-        groupby3.print();
+        groupby3.print();*/
         System.out.println("------std----");
-        groupby4.print();
+        for (DataFrame df:groupby4.getGroupDataFrameList()){
+            df.print();
+        }
+/*
         System.out.println("------var----");
         groupby5.print();
+*/
 
     }
 }

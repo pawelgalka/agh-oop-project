@@ -1,10 +1,11 @@
 package dataframe;
 
+import dataframe.value.COOValue;
+import dataframe.value.Value;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Scanner;
 
 public class SparseDataFrame extends DataFrame {
