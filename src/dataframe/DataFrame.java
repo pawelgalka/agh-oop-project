@@ -1,5 +1,5 @@
 package dataframe;
-
+import java.sql.*;
 import dataframe.exceptions.CustomException;
 import dataframe.exceptions.InvalidColumnSizeException;
 //import dataframe.groupby.Applyable;
@@ -28,6 +28,9 @@ public class DataFrame {
 
     public Class<? extends Value>[] getTypes() {
         return types;
+    }
+
+    public DataFrame() {
     }
 
     public DataFrame(String[] namesOfColumns, Class<? extends Value>[] typesOfColumns){
@@ -366,7 +369,7 @@ public class DataFrame {
             e.printStackTrace();
         }
     }
-    private ArrayList<Integer> GetIndexesOfColumns(String... colnames) throws CustomException {
+    public ArrayList<Integer> GetIndexesOfColumns(String... colnames) throws CustomException {
        // for (var v:columns) System.out.println(v);
         ArrayList<Integer> indexes = new ArrayList<>();
         int index=0;
@@ -376,7 +379,7 @@ public class DataFrame {
 //               System.out.println(str+colnames[i]);
                 if (Objects.equals(str,columns[i])) {indexes.add(index++,i); found = true;}
             }
-            if (!found) throw new CustomException("Invalid column name");
+             if (!found) throw new CustomException("Invalid column name");
         }
 //        for(int i:indexes) System.out.println(i);;
 
@@ -464,12 +467,24 @@ public class DataFrame {
             return groupedColsNames;
         }
 
-        GroupByDataFrame(LinkedList<DataFrame> linkedList, String[] colnames, Class<? extends Value>[] coltypes, ArrayList<Integer> groupedCols){
+        public GroupByDataFrame(LinkedList<DataFrame> linkedList, String[] colnames, Class<? extends Value>[] coltypes, ArrayList<Integer> groupedCols){
             this.groupDataFrameList=linkedList;
             this.columns = colnames;
             this.types = coltypes;
             this.groupedCols = groupedCols;
             for (int i:groupedCols) groupedColsNames.add(columns[i]);
+        }
+
+        public GroupByDataFrame(String[] cols, Class[] types, ArrayList<Integer> groupedCols){
+            groupDataFrameList = new LinkedList<>();
+            columns = cols;
+            this.types = types;
+            this.groupedCols = groupedCols;
+
+        }
+
+        public void addDF(DataFrame df){
+            groupDataFrameList.add(df);
         }
 
         @Override
