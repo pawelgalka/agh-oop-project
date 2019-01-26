@@ -6,17 +6,25 @@ import dataframe.exceptions.InvalidTypeOperation;
 import dataframe.value.COOValue;
 import dataframe.value.Value;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Column {
+public class Column implements Serializable {
     private String name;
     private Class<? extends Value> type;
     private ArrayList<Value> arrayList;
 
-    public Column(String name, Class<? extends Value> clazz) {
-        arrayList = new ArrayList<>();
+    public Column(String name, Class<? extends Value> clazz, ArrayList arrayList) {
         this.name = name;
         this.type = clazz;
+        this.arrayList = arrayList;
+//        this.arrayList = new ArrayList<>();
+    }
+    public Column(String name, Class<? extends Value> clazz) {
+        this.name = name;
+        this.type = clazz;
+//        this.arrayList = arrayList;
+        this.arrayList = new ArrayList<>();
     }
 
     public Column(Column kol){
@@ -30,7 +38,7 @@ public class Column {
             arrayList.add(element);
         }
         else {
-            throw new IllegalArgumentException("Invalid type");
+            throw new IllegalArgumentException("Invalid type "+element.getClass()+" Expected "+type);
         }
     }
 

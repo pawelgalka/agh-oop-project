@@ -1,40 +1,26 @@
 package dataframe.tests;
 
 import dataframe.*;
-import dataframe.value.ValDateTime;
-import dataframe.value.ValDouble;
-import dataframe.value.ValString;
+import dataframe.value.*;
 
 public class GroupBySingleTest {
     public static void main(String[] args) throws Exception {
-        DataFrame dataFrame = new DataFrame("/home/pawelgalka/IdeaProjects/java/src/dataframe/dane.csv",new Class[]{ValString.class, ValDateTime.class, ValDouble.class,ValDouble.class});
-        /*HashMap<List<Value>,DataFrame> map = dataFrame.groupby("id");
-        for (var obj:map.values()){
-            obj.print();
-        }*/
-        /*DataFrame groupby = dataFrame.groupby(new String[]{"date"}).max();
-        DataFrame groupby1 = dataFrame.groupby(new String[]{"id"}).min();
-        DataFrame groupby2 = dataFrame.groupby(new String[]{"id"}).mean();
-        DataFrame groupby3 = dataFrame.groupby(new String[]{"id"}).sum();*/
-        DataFrame.GroupByDataFrame groupby4 = dataFrame.groupby(new String[]{"date"});
-        DataFrame groupby5 = dataFrame.groupby(new String[]{"date"}).var();
+        long t = System.currentTimeMillis();
+        DataFrameThreads dataFrameThreads = new DataFrameThreads("/home/pawelgalka/csv/groupby.csv", new Class[]{StringHolder.class, DateTimeHolder.class,  DoubleHolder.class, FloatHolder.class});
+//        DataFrame dataFrame = new DataFrame("/home/pawelgalka/csv/large_groupby_3.csv", new Class[]{IntHolder.class, DateTimeHolder.class, StringHolder.class, DoubleHolder.class, FloatHolder.class});
+        System.out.println(System.currentTimeMillis() - t);
 
-    /*    System.out.println("-----max-----");
-        groupby.print();
-        System.out.println("-----min-----");
-        groupby1.print();
-        System.out.println("-----mean-----");
-        groupby2.print();
-        System.out.println("-----sum-----");
-        groupby3.print();*/
-        System.out.println("------std----");
-        for (DataFrame df:groupby4.getGroupDataFrameList()){
-            df.print();
-        }
-/*
-        System.out.println("------var----");
-        groupby5.print();
-*/
+        DataFrame groupByDataFrame = dataFrameThreads.groupby(new String[]{"id"}).mean();
+        System.out.println(groupByDataFrame);
+//        System.out.println(groupByDataFrame.getGroupDataFrameList().size());
 
+//   /     t = System.currentTimeMillis();
+//        System.out.println(System.currentTimeMillis());
+//        groupByDataFrame.var();
+//        System.out.println(System.currentTimeMillis() - t);
+//        t = System.currentTimeMillis();
+//        System.out.println(System.currentTimeMillis());
+//        groupByDataFrame.varParallel();
+//        System.out.println(System.currentTimeMillis() - t);
     }
 }

@@ -1,11 +1,9 @@
 package dataframe.groupby;
 
-import dataframe.*;
 import dataframe.Column;
 import dataframe.DataFrame;
 import dataframe.exceptions.CustomException;
-import dataframe.groupby.Applyable;
-import dataframe.value.ValDouble;
+import dataframe.value.DoubleHolder;
 import dataframe.value.Value;
 
 import java.util.*;
@@ -25,7 +23,7 @@ public class Mediana implements Applyable {
             if (size%2!=0)
                 values[index++] = valuesOfColumn.get((size-1)/2);
             else{
-                values[index++] = (valuesOfColumn.get((size-2)/2).add(valuesOfColumn.get((size)/2))).mul(new ValDouble(0.5));}
+                values[index++] = (valuesOfColumn.get((size-2)/2).add(valuesOfColumn.get((size)/2))).mul(new DoubleHolder(0.5));}
         }
         output.add(values);
         return output;
